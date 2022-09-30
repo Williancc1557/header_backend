@@ -1,76 +1,79 @@
-import type { ChangeItemDto } from "../../api/product/change.dto";
+import type { ChangeItemDto, SaveItemDto } from "../../api/product/item.dto";
 import type { ItemEntity } from "./../entities/item";
 import { Injectable } from "@nestjs/common";
 
-
-const database: Array<ItemEntity> = [];
+const database: Array<ItemEntity> = [
+  {
+    name: "Header",
+    type: "Hotel",
+    city: "Igarassu",
+    country: "Brazil",
+    id: 1,
+    owner: "Hudson Freitas",
+    latitude: 123,
+    longitude: 123,
+    state: "PE",
+    created: "05/10/2004",
+  },
+];
 
 @Injectable()
 export class DatabaseOrm {
-    private static generateSequenceId() {
+  private static generateSequenceId() {
+    const lastItem = database.slice(-1)[0]; // eslint-disable-line
 
-        const lastItem = database.slice(-1)[0]; // eslint-disable-line
+    if (!lastItem) return 1; // eslint-disable-line
 
-        if (!lastItem) return 1; // eslint-disable-line
+    const id = lastItem.id + 1; // eslint-disable-line
 
-        const id = lastItem.id + 1 // eslint-disable-line
+    return id;
+  }
 
-        return id;
-    }
+  public save(data: SaveItemDto): void {
+    const id = DatabaseOrm.generateSequenceId();
+    const dateCurrency = new Date();
+    const day = dateCurrency.getDate();
+    const month = dateCurrency.getMonth();
+    const year = dateCurrency.getFullYear();
+    const created = `${day}/${month}/${year}`;
+    database.push({
+      owner: "Hudson Freitas",
+      created,
+      ...data,
+      id,
+    });
+    console.log(database);
+  }
 
-    public save(data: ItemEntity): void {
-        const id = DatabaseOrm.generateSequenceId();
+  public findAll(): Array<ItemEntity> {
+    return database;
+  }
 
-        database.push({
-            ...data,
-            id,
-            finished: data.finished || false,
-        });
-        console.log(database)
-    }
+  public findOne(id: number): ItemEntity {
+    const item = database.find((i) => i.id == id);
 
-    public findAll(): Array<ItemEntity> {
-        return database;
-    }
+    return item;
+  }
 
-    public findOne(id: number): ItemEntity {
-        const item = database.find(i => i.id == id);
+  public deleteAll() {
+    const FIRST = 0;
+    database.splice(FIRST, database.length);
+  }
 
-        return item;
-    }
+  public delete(id: number): void {
+    const itemPosition = database.findIndex((item) => item.id == id);
 
-    public findOnlyNotChecked(): Array<ItemEntity> {
-        const item = database.filter(i => i.finished);
+    database.splice(itemPosition, 1); // eslint-disable-line
+  }
 
-        return item;
-    }
+  public change(itemBody: ChangeItemDto): ItemEntity {
+    const index = database.findIndex((item) => item.id == itemBody.id);
 
-    public findOnlyChecked(): Array<ItemEntity> {
-        const item = database.filter(i => !i.finished);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id, ...itemsToChange } = itemBody;
 
-        return item;
-    }
+    database[index] = { ...database[index], ...itemsToChange };
 
-    public delete(id: number): void {
-        const itemPosition = database.findIndex(item => item.id == id);
-
-        database.splice(itemPosition, 1); // eslint-disable-line
-    }
-
-    public change(itemBody: ChangeItemDto): ItemEntity {
-        const index = database.findIndex(item => item.id == itemBody.id);
-
-        const findItem = this.findOne(itemBody.id);
-        
-        database[index].name = itemBody.name || findItem.name;
-        database[index].description = itemBody.description || findItem.description;
-
-        if (itemBody.finished) {
-            database[index].finished = itemBody.finished;
-        } else {
-            database[index].finished = false;
-        }
-
-        return database[index];
-    }
+    return database[index];
+  }
 }

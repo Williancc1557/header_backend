@@ -1,7 +1,6 @@
-import { ChangeItemDto } from "./change.dto";
+import { ChangeItemDto, SaveItemDto } from "./item.dto";
 import { ItemRepository } from "./../../database/repositories/product/product.repository";
 import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put } from "@nestjs/common";
-import { ItemEntity } from "src/database/entities/item";
 
 @Controller()
 export class ItemController {
@@ -22,30 +21,19 @@ export class ItemController {
         return this.productRepository.findOne(id);
     }
 
-    @Get("find/only/notcheckeds")
-    public finOnlyNotCheckeds() {
-        return {
-            statusCode: HttpStatus.OK,
-            body: this.productRepository.findOnlyNotChecked(),
-        };
-    }
-
-    @Get("find/only/checkeds")
-    public finOnlyCheckeds() {
-        return {
-            statusCode: HttpStatus.OK,
-            body: this.productRepository.findOnlyChecked(),
-        };
-    }
-
     @Post("save")
-    public save(@Body() product: ItemEntity) {
+    public save(@Body() product: SaveItemDto) {
         return this.productRepository.save(product);
     }
 
     @Put("change")
     public change(@Body() data: ChangeItemDto) {
         return this.productRepository.change(data);
+    }
+
+    @Delete("delete-all")
+    public deleteAll() {
+        return this.productRepository.deleteAll();
     }
 
     @Delete("delete/:id")

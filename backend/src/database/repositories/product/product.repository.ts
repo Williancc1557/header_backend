@@ -1,4 +1,4 @@
-import type { ChangeItemDto } from "../../../api/product/change.dto";
+import type { ChangeItemDto, SaveItemDto } from "../../../api/product/item.dto";
 import { DatabaseOrm } from "src/database/repositories/database.service";
 import type { ItemEntity } from "../../entities/item";
 import { Injectable } from "@nestjs/common";
@@ -10,7 +10,7 @@ export class ItemRepository {
         private readonly databaseOrm: DatabaseOrm
     ) {}
 
-    public save(data: ItemEntity): void {
+    public save(data: SaveItemDto): void {
         return this.databaseOrm.save(data);
     }
 
@@ -26,15 +26,11 @@ export class ItemRepository {
         return this.databaseOrm.delete(id);
     }
 
+    public deleteAll() {
+        return this.databaseOrm.deleteAll();
+    } 
+
     public change(changeItemDto: ChangeItemDto): ItemEntity {
         return this.databaseOrm.change(changeItemDto);
-    }
-
-    public findOnlyNotChecked(): Array<ItemEntity> {
-        return this.databaseOrm.findOnlyNotChecked();
-    }
-
-    public findOnlyChecked(): Array<ItemEntity> {
-        return this.databaseOrm.findOnlyChecked();
     }
 }

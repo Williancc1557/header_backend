@@ -1,9 +1,21 @@
 export class ItemEntity {
-    public id?: number;
+    public id: number;
+
+    public owner: string;
 
     public name: string;
 
-    public description?: string;
+    public type: string;
 
-    public finished?: boolean;
+    public created: string;
+
+    public latitude: number;
+
+    public longitude: number;
+
+    public city: string;
+
+    public state: string;
+
+    public country: string;
 }
